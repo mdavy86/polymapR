@@ -4,8 +4,8 @@
 \alias{screen_for_duplicate_individuals}
 \title{Screen for duplicate individuals}
 \usage{
-screen_for_duplicate_individuals(dosage_matrix, cutoff = NULL, plot_cor = T,
-  log = NULL)
+screen_for_duplicate_individuals(dosage_matrix, cutoff = NULL,
+  plot_cor = TRUE, log = NULL, denscols = FALSE, ylim = c(0, 1), ...)
 }
 \arguments{
 \item{dosage_matrix}{An integer matrix with markers in rows and individuals in columns.}
@@ -15,6 +15,12 @@ screen_for_duplicate_individuals(dosage_matrix, cutoff = NULL, plot_cor = T,
 \item{plot_cor}{Logical. Should correlation coefficients be plotted? Can be memory/CPU intensive with high number of individuals.}
 
 \item{log}{Character string specifying the log filename to which standard output should be written. If NULL log is send to stdout.}
+
+\item{ylim}{for plot, defaults to c(0,1)}
+
+\item{...}{additional plot parameters}
+
+\item{dencols}{Logical specifying whether to use densCols() of correlations}
 }
 \value{
 A matrix similar to dosage_matrix, with merged duplicate individuals.

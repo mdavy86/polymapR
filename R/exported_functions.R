@@ -1756,6 +1756,10 @@ screen_for_NA_values <- function(dosage_matrix,
 #' @param cutoff Correlation coefficient cut off. At this correlation coefficient, individuals are merged. If NULL user input will be asked after plotting.
 #' @param plot_cor Logical. Should correlation coefficients be plotted? Can be memory/CPU intensive with high number of individuals.
 #' @param log Character string specifying the log filename to which standard output should be written. If NULL log is send to stdout.
+#' @param dencols Logical specifying whether to use densCols() of correlations
+#' @param ylim for plot, defaults to c(0,1)
+#' @param ... additional plot parameters
+#' 
 #' @return A matrix similar to dosage_matrix, with merged duplicate individuals.
 #' @examples
 #' data("segregating_data")
@@ -1770,9 +1774,12 @@ screen_for_NA_values <- function(dosage_matrix,
 #' @export
 screen_for_duplicate_individuals <-
   function(dosage_matrix,
-           cutoff = NULL,
-           plot_cor = T,
-           log = NULL) {
+           cutoff   = NULL,
+           plot_cor = TRUE,
+           log      = NULL,
+           denscols = FALSE,
+           ylim     = c(0,1), 
+           ...) {
     dosage_matrix <- test_dosage_matrix(dosage_matrix)
     cor.dosage_matrix <-
       cor(dosage_matrix, use = "pairwise.complete.obs")
@@ -1793,19 +1800,17 @@ screen_for_duplicate_individuals <-
       #      xaxp=c(0.5,1,50))
 
       corvec <- c(cor.dosage_matrix[!is.na(cor.dosage_matrix)])
+     if(denscols) {
+      dcols <- densCols(corvec)
+      plot(corvec, ylab = "Pearson's correlation coefficient", xlab = "", ylim = ylim,
+        pch = 16, bty = "n", col = dcols, xaxt = "n", cex.lab = 1.2,
+        cex.axis = 1.2, ...)
+     } else {
+       plot(corvec, ylab = "Pearson's correlation coefficient", xlab = "", ylim = ylim,
+            pch = 20, bty = "n", col = rgb(0.5, 0.5, 0.5, 0.4), xaxt = "n", cex.lab = 1.2,
+            cex.axis = 1.2, ...)
+     }
 
-      plot(
-        corvec,
-        ylab = "Pearson's correlation coefficient",
-        xlab = "",
-        ylim = c(0, 1),
-        pch = 20,
-        bty = "n",
-        col = rgb(0.5, 0.5, 0.5, 0.4),
-        xaxt = "n",
-        cex.lab = 1.2,
-        cex.axis = 1.2
-      )
       if (!is.null(cutoff)) {
         abline(
           h = cutoff,
