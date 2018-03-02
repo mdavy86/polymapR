@@ -1756,7 +1756,7 @@ screen_for_NA_values <- function(dosage_matrix,
 #' @param cutoff Correlation coefficient cut off. At this correlation coefficient, individuals are merged. If NULL user input will be asked after plotting.
 #' @param plot_cor Logical. Should correlation coefficients be plotted? Can be memory/CPU intensive with high number of individuals.
 #' @param log Character string specifying the log filename to which standard output should be written. If NULL log is send to stdout.
-#' @param dencols Logical specifying whether to use densCols() of correlations
+#' @param denscols Logical specifying whether to use densCols() of correlations
 #' @param ylim for plot, defaults to c(0,1)
 #' @param ... additional plot parameters
 #' 
@@ -1801,7 +1801,8 @@ screen_for_duplicate_individuals <-
 
       corvec <- c(cor.dosage_matrix[!is.na(cor.dosage_matrix)])
      if(denscols) {
-      dcols <- densCols(corvec)
+      ## grey colours
+      dcols <- densCols(corvec, colramp=colorRampPalette(grey(c(0.7,0))))
       plot(corvec, ylab = "Pearson's correlation coefficient", xlab = "", ylim = ylim,
         pch = 16, bty = "n", col = dcols, xaxt = "n", cex.lab = 1.2,
         cex.axis = 1.2, ...)
@@ -2520,19 +2521,21 @@ linkage <- function(dosage_matrix,
 #' @param plot_main A character string specifying the main title
 #' @param chm Integer specifying chromosome
 #' @param r_max Maximum r value to plot
+#' @param denscols Logical specifying whether to use densCols() of correlations
+#' @param ... additional plot parameters
 #' @examples
 #' data("SN_SN_P1")
 #' r_LOD_plot(SN_SN_P1)
 #' @export
 r_LOD_plot <- function(linkage_df,
                        plot_main = "",
-                       chm = NA,
-                       r_max = 0.5) {
+                       chm       = NA,
+                       r_max     = 0.5,
+                       denscols   = FALSE, ...) {
   all_phases <- levels(as.factor(linkage_df$phase))
 
   ## Assume there are at most 6 phasings..
-  colours <-
-    c(
+  colours <- c(
       "limegreen",
       "red3",
       "darkgoldenrod2",
@@ -2564,16 +2567,22 @@ r_LOD_plot <- function(linkage_df,
        ))
   for (p in 1:length(all_phases)) {
     phase_level <- as.character(all_phases[p])
-    phase_col <- colours[p]
-
     temp_data <- linkage_df[linkage_df$phase == phase_level,]
 
-    with(temp_data[complete.cases(temp_data$LOD),],
-         points(r, LOD, col = phase_col))
+    if(nrow(temp_data)) {
+      if(denscols) {
+        phase_col <- densCols(temp_data[complete.cases(temp_data$LOD), c("r", "LOD")],
+                              colramp = colorRampPalette(c(colours[p], "black")))
+      } else {
+        phase_col <- colours[p]
+      }
+      with(temp_data[complete.cases(temp_data$LOD),],
+           points(r, LOD, col = phase_col, pch=16, ...))
+    }
   }
   legend("topright",
          col = colours[1:length(all_phases)],
-         pch = 1,
+         pch = 16,
          as.character(all_phases))
 
 }
